@@ -122,9 +122,9 @@ class cifar_10_data:
         input, targets = self.next_batch(batchsize)
         return randNoise(input, stddev=stddev), targets
 
-    def next_droppedBatch(self, batchsize, drop=):
+    def next_droppedBatch(self, batchsize, drop=0.01):
         pass
-    
+
     def get_mean(self):
         return self.train_X.mean(axis=(0, 1, 2))
 
