@@ -89,7 +89,7 @@ class cifar_10_data:
             self.test_X = tmp
             self.test_y = tf.one_hot(data['labels'], 10).eval(session=sess)
 
-        self.train_X = self.train_X[:10000]
+#        self.train_X = self.train_X[:10000]
         self._num_examples = self.train_X.shape[0]
 
         return
