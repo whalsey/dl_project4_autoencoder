@@ -21,12 +21,12 @@ class my_autoencoder:
         else:
             self.task = task
 
-        self.saver = tf.train.Saver()
-
         self.initNetStructure()
 
         init_op = tf.global_variables_initializer()
         self.sess.run(init_op)
+
+        self.saver = tf.train.Saver()
 
         if restore:
             # todo - restore files
@@ -62,7 +62,7 @@ class my_autoencoder:
             sys.stdout.write("Epoch: {} ".format(epoch))
             sys.stdout.flush()
 
-            input_im, output_im = self.data.next_noisyBatch(self.batch_size, stddev=0.01)
+            input_im, output_im = self.data.next_noisyBatch(self.batch_size, stddev=0.1)
 
             i = 0
             while input_im != [] and output_im != []:
@@ -74,7 +74,7 @@ class my_autoencoder:
                     sys.stdout.flush()
 
                 i += 1
-                input_im, output_im = self.data.next_noisyBatch(self.batch_size, stddev=0.01)
+                input_im, output_im = self.data.next_noisyBatch(self.batch_size, stddev=0.1)
 
             # calculate training loss
             X, y_ = self.data.fetch_noisy_train_data(10000)
