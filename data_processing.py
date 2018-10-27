@@ -89,6 +89,7 @@ class cifar_10_data:
             self.test_X = tmp
             self.test_y = tf.one_hot(data['labels'], 10).eval(session=sess)
 
+        self.train_X = self.train_X[:10000]
         self._num_examples = self.train_X.shape[0]
 
         return
@@ -113,7 +114,7 @@ class cifar_10_data:
 
             self._index_in_epoch = 0  # avoid the case where the #sample != integer times of batch_size
 
-            return [], []
+            return []
         else:
             self._index_in_epoch += batch_size
             end = self._index_in_epoch
@@ -136,11 +137,26 @@ class cifar_10_data:
         target = self.next_batch(batchsize)
         return randNoise(target, stddev=self.stddev_noise), target
 
+    def fetch_noisy_train_data(self, number):
+        return randNoise(self.train_X[:number]), self.train_X[:number]
+
+    def fetch_noisy_valid_data(self):
+        return randNoise(self.valid_X), self.valid_X
+
+    def fetch_noisy_test_data(self):
+        return randNoise(self.test_X), self.test_X
+
     def get_mean(self):
         return self.train_X.mean(axis=(0, 1, 2))
 
     def get_stddev(self):
         return self.train_X.std(axis=(0, 1, 2))
+
+    def get_min(self):
+        return self.train_X.min(axis=(0, 1, 2))
+
+    def get_max(self):
+        return self.train_X.max(axis=(0, 1, 2))
 
     def normalize(self):
         mean = self.get_mean()
@@ -152,6 +168,18 @@ class cifar_10_data:
         self.train_X = self.train_X / std
         self.valid_X = self.valid_X / std
         self.test_X = self.test_X / std
+
+    def unitNormalize(self):
+        min = self.get_min()
+        max = self.get_max()
+
+        self.train_X = np.subtract(self.train_X, min)
+        self.valid_X = np.subtract(self.valid_X, min)
+        self.test_X = np.subtract(self.test_X, min)
+
+        self.train_X = self.train_X / max
+        self.valid_X = self.valid_X / max
+        self.test_X = self.test_X / max
 
 def read_cifar10_data():
     return cifar_10_data()

@@ -1,0 +1,2 @@
+os.environ['CUDA_VISIBLE_DEVICES'] = ''
+tmp = np.pad(input, ((0,), (96,), (96,), (0,)), mode='constant', constant_values=0)
