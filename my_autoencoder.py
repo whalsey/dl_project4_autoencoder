@@ -1,9 +1,12 @@
 import tensorflow as tf
 import sys
+import os
 from data_processing import cifar_10_data
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
+
+cur_dir = os.path.curdir
 
 class my_autoencoder:
 
@@ -89,7 +92,7 @@ class my_autoencoder:
 
             sys.stdout.write('\nTraining loss: {}, Validation loss: {}\n'.format(train_acc, valid_acc))
 
-            self.saver.save(sess, "/tmp/task_{}/model_epoch_{}.ckpt".format(self.task, epoch))
+            self.saver.save(sess, "{}/tmp/task_{}/model_epoch_{}.ckpt".format(cur_dir, self.task, epoch))
 
         return train_acc_record, valid_acc_record
 
@@ -118,7 +121,7 @@ if __name__ == "__main__":
 
     # write out results
 
-    file = "/output/task_{}_output.csv"
+    file = "{}/output/task_{}_output.csv".format(cur_dir, 1)
 
     def write(file, train, valid, test):
         epochs = [i for i in range(len(train))]
