@@ -92,7 +92,9 @@ class my_autoencoder:
 
             sys.stdout.write('\nTraining loss: {}, Validation loss: {}\n'.format(train_acc, valid_acc))
 
-            self.saver.save(sess, "{}/tmp/task_{}/model_epoch_{}.ckpt".format(cur_dir, self.task, epoch))
+            save_path = "./tmp/task_{}/model_epoch_{}.ckpt".format(self.task, epoch)
+            os.makedirs('/'.join(save_path.split('/')[:-1]), exist_ok=True)
+            self.saver.save(sess, save_path=save_path)
 
         return train_acc_record, valid_acc_record
 
@@ -121,7 +123,8 @@ if __name__ == "__main__":
 
     # write out results
 
-    file = "{}/output/task_{}_output.csv".format(cur_dir, 1)
+    file = "./output/task_{}_output.csv".format(1)
+    os.makedirs('/'.join(file.split('/')[:-1]), exist_ok=True)
 
     def write(file, train, valid, test):
         epochs = [i for i in range(len(train))]
