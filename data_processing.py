@@ -46,10 +46,15 @@ def randShift(dataset):
 def randNoise(dataset, stddev=0.01):
     return dataset + np.random.normal(0, stddev, dataset.shape)
 
+def sapNoise(dataset, prob=0.3):
+    # todo
+    return dataset
+
 class cifar_10_data:
-    def __init__(self):
+    def __init__(self, stddev_noise=0.01):
         self._epochs_completed = 0
         self._index_in_epoch = 0
+        self.stddev_noise = stddev_noise
 
         sess = tf.Session()
 
@@ -116,14 +121,20 @@ class cifar_10_data:
             # add small perturbations to the data before passing out
             # as a method of "augmenting" the dataset but without
             # actually changing the training set size
-            return self._data[start:end], self._labels[start:end]
+            data = randShift(self._data[start:end])
+            return data
 
     def next_noisyBatch(self, batchsize, stddev=0.01):
-        input, targets = self.next_batch(batchsize)
-        return randNoise(input, stddev=stddev), targets
+        target = self.next_batch(batchsize)
+
+        if target == []:
+            return [], []
+        else:
+            return randNoise(target, stddev=self.stddev_noise), target
 
     def next_droppedBatch(self, batchsize, drop=0.01):
-        pass
+        target = self.next_batch(batchsize)
+        return randNoise(target, stddev=self.stddev_noise), target
 
     def get_mean(self):
         return self.train_X.mean(axis=(0, 1, 2))
