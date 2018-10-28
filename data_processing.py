@@ -44,7 +44,9 @@ def randShift(dataset):
     return tmp
 
 def randNoise(dataset, stddev=0.01):
-    return dataset + np.random.normal(0, stddev, dataset.shape)
+    noise = np.random.normal(0, stddev, dataset.shape)
+    ret = np.add(dataset, noise)
+    return ret
 
 def sapNoise(dataset, prob=0.3):
     # todo
@@ -181,9 +183,9 @@ class cifar_10_data:
         self.min = min
         self.max = max
 
-        self.train_X = np.subtract(self.train_X, min)
-        self.valid_X = np.subtract(self.valid_X, min)
-        self.test_X = np.subtract(self.test_X, min)
+        self.train_X = np.subtract(self.train_X, min).astype(float)
+        self.valid_X = np.subtract(self.valid_X, min).astype(float)
+        self.test_X = np.subtract(self.test_X, min).astype(float)
 
         self.train_X = self.train_X / max
         self.valid_X = self.valid_X / max
