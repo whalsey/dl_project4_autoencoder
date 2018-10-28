@@ -51,10 +51,9 @@ def sapNoise(dataset, prob=0.3):
     return dataset
 
 class cifar_10_data:
-    def __init__(self, stddev_noise=0.01):
+    def __init__(self):
         self._epochs_completed = 0
         self._index_in_epoch = 0
-        self.stddev_noise = stddev_noise
 
         sess = tf.Session()
 
@@ -125,17 +124,17 @@ class cifar_10_data:
             data = randShift(self._data[start:end])
             return data
 
-    def next_noisyBatch(self, batchsize, stddev=0.01):
+    def next_noisyBatch(self, batchsize, stddev=0.1):
         target = self.next_batch(batchsize)
 
         if target == []:
             return [], []
         else:
-            return randNoise(target, stddev=self.stddev_noise), target
+            return randNoise(target, stddev=stddev), target
 
     def next_droppedBatch(self, batchsize, drop=0.01):
         target = self.next_batch(batchsize)
-        return randNoise(target, stddev=self.stddev_noise), target
+        return randNoise(target, stddev=drop), target
 
     def fetch_noisy_train_data(self, number):
         return randNoise(self.train_X[:number]), self.train_X[:number]
@@ -173,6 +172,9 @@ class cifar_10_data:
         min = self.get_min()
         max = self.get_max()
 
+        self.min = min
+        self.max = max
+
         self.train_X = np.subtract(self.train_X, min)
         self.valid_X = np.subtract(self.valid_X, min)
         self.test_X = np.subtract(self.test_X, min)
@@ -180,6 +182,12 @@ class cifar_10_data:
         self.train_X = self.train_X / max
         self.valid_X = self.valid_X / max
         self.test_X = self.test_X / max
+
+    def unitUnnormalize(self, input):
+        tmp = input * self.max
+        tmp = np.add(tmp, self.min)
+
+        return tmp
 
 def read_cifar10_data():
     return cifar_10_data()
