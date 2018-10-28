@@ -32,8 +32,7 @@ class my_autoencoder:
         self.saver = tf.train.Saver()
 
         if restore and restore_path is not None:
-            # todo - restore files
-            pass
+            self.saver.restore(sess=self.sess, save_path=restore_path)
 
     def initNetStructure(self):
         self.x = tf.placeholder(tf.float32, [None, 32, 32, 3], name='input_layer')
