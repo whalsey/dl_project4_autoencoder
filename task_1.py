@@ -10,7 +10,7 @@ cur_dir = os.path.curdir
 
 class my_autoencoder:
 
-    def __init__(self, sess=None, latent_dim=2048, learning_rate=1e-4, epochs=50, batch_size=100, data=None, task=None, restore=False):
+    def __init__(self, sess=None, latent_dim=2048, learning_rate=1e-4, epochs=50, batch_size=100, data=None, task=None, restore=False, restore_path=None):
         self.sess = sess
         self.latent_dim = latent_dim
         self.learning_rate = learning_rate
@@ -31,7 +31,7 @@ class my_autoencoder:
 
         self.saver = tf.train.Saver()
 
-        if restore:
+        if restore and restore_path is not None:
             # todo - restore files
             pass
 
@@ -105,10 +105,15 @@ class my_autoencoder:
         sys.stdout.write('Test loss: {}\n'.format(test_loss))
         return test_loss
 
+    def use(self, input):
+        output = self.sess.run(self.y, feed_dict={self.x: input})
+
+        return output
+
 if __name__ == "__main__":
     # TASK 1
     # read in the data - may try several different types and ranges for distortion
-    data = cifar_10_data(stddev_noise=0.01)
+    data = cifar_10_data()
     data.unitNormalize()
 
     graph = tf.get_default_graph()
