@@ -43,11 +43,11 @@ class my_autoencoder:
             self.weights = tf.Variable(tf.truncated_normal([3072, self.latent_dim]), name='weights')
             self.enc_bias = tf.Variable(tf.truncated_normal([self.latent_dim]), name='end_bias')
 
-            encoded = tf.nn.sigmoid(tf.add(tf.matmul(flat, self.weights), self.enc_bias), name='encoded')
+            encoded = tf.nn.relu(tf.add(tf.matmul(flat, self.weights), self.enc_bias), name='encoded')
 
         with tf.name_scope('Decoder'):
             self.dec_bias = tf.Variable(tf.truncated_normal([3072]), name='dec_bias')
-            decoded = tf.nn.sigmoid(tf.add(tf.matmul(encoded, tf.transpose(self.weights)), self.dec_bias), name='decoded')
+            decoded = tf.nn.relu(tf.add(tf.matmul(encoded, tf.transpose(self.weights)), self.dec_bias), name='decoded')
 
             self.y = tf.reshape(decoded, [-1, 32, 32, 3], name='output')
 

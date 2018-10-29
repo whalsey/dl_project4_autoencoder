@@ -43,7 +43,7 @@ def randShift(dataset):
 
     return tmp
 
-def randNoise(dataset, stddev=0.01):
+def randNoise(dataset, stddev=0.05):
     noise = np.random.normal(0, stddev, dataset.shape)
     ret = np.add(dataset, noise)
     return ret
