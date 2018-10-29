@@ -25,8 +25,8 @@ if __name__=="__main__":
     data.unitNormalize()
     blah = data.fetch_noisy_train_data(1)
     tmp2, clean = blah[0], blah[1]
-    clean = data.unitUnnormalize(clean)
-    clean_image = Image.fromarray(clean[0].astype(np.uint8))
+    clean1 = data.unitUnnormalize(clean)
+    clean_image = Image.fromarray(clean1[0].astype(np.uint8))
     clean_image.show()
     raw_input("press enter")
     tmp = data.unitUnnormalize(tmp2[0]).astype(np.uint8)
@@ -40,4 +40,10 @@ if __name__=="__main__":
     # plt.imshow(distorted_image)
     # plt.show()
     raw_input("press enter")
-
+    another = data.unitUnnormalize(net.use(clean)).astype(np.uint8)
+    another_image = Image.fromarray(new[0])
+    another_image.show()
+    # plt.close()
+    # plt.imshow(distorted_image)
+    # plt.show()
+    raw_input("press enter")
