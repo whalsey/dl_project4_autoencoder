@@ -64,7 +64,7 @@ class my_autoencoder:
             sys.stdout.write("Epoch: {} ".format(epoch))
             sys.stdout.flush()
 
-            input_im, output_im = self.data.next_noisyBatch(self.batch_size, stddev=0.1)
+            input_im, output_im = self.data.next_noisyBatch(self.batch_size, stddev=0.05)
 
             i = 0
             while input_im != [] and output_im != []:
@@ -76,7 +76,7 @@ class my_autoencoder:
                     sys.stdout.flush()
 
                 i += 1
-                input_im, output_im = self.data.next_noisyBatch(self.batch_size, stddev=0.1)
+                input_im, output_im = self.data.next_noisyBatch(self.batch_size, stddev=0.05)
 
             # calculate training loss
             X, y_ = self.data.fetch_noisy_train_data(10000)
