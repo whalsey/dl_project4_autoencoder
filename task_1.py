@@ -10,7 +10,7 @@ cur_dir = os.path.curdir
 
 class my_autoencoder:
 
-    def __init__(self, sess=None, latent_dim=512, learning_rate=1e-4, epochs=50, batch_size=100, data=None, task=None, restore=False, restore_path=None):
+    def __init__(self, sess=None, latent_dim=1024, learning_rate=1e-4, epochs=50, batch_size=100, data=None, task=None, restore=False, restore_path=None):
         self.sess = sess
         self.latent_dim = latent_dim
         self.learning_rate = learning_rate
@@ -46,24 +46,14 @@ class my_autoencoder:
             self.encoded_1 = tf.nn.sigmoid(tf.add(tf.matmul(flat, self.weights_1), self.enc1_bias), name='encoded_1')
 
         with tf.name_scope('Encoder_2'):
-            self.weights_2 = tf.Variable(tf.truncated_normal([2048, 1024]), name='weights_2')
-            self.enc2_bias = tf.Variable(tf.truncated_normal([1024]), name='enc2_bias')
+            self.weights_2 = tf.Variable(tf.truncated_normal([2048, self.latent_dim]), name='weights_2')
+            self.enc2_bias = tf.Variable(tf.truncated_normal([self.latent_dim]), name='enc2_bias')
 
-            self.encoded_2 = tf.nn.sigmoid(tf.add(tf.matmul(self.encoded_1, self.weights_2), self.enc2_bias), name='encoded_2')
-
-        with tf.name_scope('Encoder_3'):
-            self.weights_3 = tf.Variable(tf.truncated_normal([1024, self.latent_dim]), name='weights_3')
-            self.enc3_bias = tf.Variable(tf.truncated_normal([self.latent_dim]), name='enc3_bias')
-
-            encoded = tf.nn.sigmoid(tf.add(tf.matmul(self.encoded_2, self.weights_3), self.enc3_bias), name='encoded_3')
-
-        with tf.name_scope('Decoder_3'):
-            self.dec3_bias = tf.Variable(tf.truncated_normal([1024]), name='dec3_bias')
-            self.decoded_3 = tf.nn.sigmoid(tf.add(tf.matmul(encoded, tf.transpose(self.weights_3)), self.dec3_bias), name='decoded_3')
+            encoded = tf.nn.sigmoid(tf.add(tf.matmul(self.encoded_1, self.weights_2), self.enc2_bias), name='encoded_2')
 
         with tf.name_scope('Decoder_2'):
-            self.dec2_bias = tf.Variable(tf.truncated_normal([2048]), name='dec2_bias')
-            self.decoded_2 = tf.nn.sigmoid(tf.add(tf.matmul(self.decoded_3, tf.transpose(self.weights_2)), self.dec2_bias), name='decoded_2')
+            self.dec2_bias = tf.Variable(tf.truncated_normal([2048]), name='dec3_bias')
+            self.decoded_2 = tf.nn.sigmoid(tf.add(tf.matmul(encoded, tf.transpose(self.weights_2)), self.dec2_bias), name='decoded_2')
 
         with tf.name_scope('Decoder_1'):
             self.dec1_bias = tf.Variable(tf.truncated_normal([3072]), name='dec1_bias')
