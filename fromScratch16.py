@@ -260,7 +260,7 @@ class vgg16:
 
             sys.stdout.write('\n')
             sys.stdout.flush()
-            if i % report_freq == 0 and old_batch != []:
+            if i % report_freq == 0:
 
                 train_acc = self.sess.run(self.accuracy, feed_dict={self.x: self.data.unitNormalize(self.data.train_X[:10000]), self.y_: self.data.train_y[:10000], self.training : False, self.keep_drop_prob : 1})
                 train_result.append(train_acc)
