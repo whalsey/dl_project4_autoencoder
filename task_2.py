@@ -47,3 +47,7 @@ if __name__ == '__main__':
     new_images = net2.use(data.unitNormalize(data.test_X))
 
     results = net.use(new_images)
+    with open("something.csv", 'w') as o:
+        buffer = results
+        o.write(buffer)
+        o.flush()
