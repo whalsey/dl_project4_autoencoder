@@ -116,7 +116,8 @@ class my_autoencoder:
                 os.makedirs('/'.join(save_path.split('/')[:-1]))
             self.saver.save(sess, save_path=save_path)
 
-            self.visualize(np.random.choice(self.data.test_X, 10), "./img/epoch_{}.png".format(epoch))
+            choice = np.random.choice(10000, 10, replace=False)
+            self.visualize(self.data.test_X[choice], "./img/epoch_{}.png".format(epoch))
 
         return train_acc_record, valid_acc_record
 
