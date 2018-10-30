@@ -82,9 +82,10 @@ class my_autoencoder:
             sys.stdout.flush()
 
             output_im, _ = self.data.next_batch(self.batch_size)
-            input_im = dp.randNoise(self.data.unitNormalize(output_im), stddev=self.stddev)
+
             i = 0
             while input_im != [] and output_im != []:
+                input_im = dp.randNoise(self.data.unitNormalize(output_im), stddev=self.stddev)
 
                 self.sess.run(self.train_step, feed_dict={self.x: input_im, self.y_: output_im})
 
@@ -94,7 +95,6 @@ class my_autoencoder:
 
                 i += 1
                 output_im, _ = self.data.next_batch(self.batch_size)
-                input_im = dp.randNoise(self.data.unitNormalize(output_im), stddev=self.stddev)
 
             # calculate training loss
             X, y_ = self.data.fetch_noisy_train_data(10000)
