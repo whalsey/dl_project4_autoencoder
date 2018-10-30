@@ -66,7 +66,10 @@ class cifar_10_data:
             self.test_X = tmp
             self.test_y = tf.one_hot(data['labels'], 10).eval(session=sess)
 
-#        self.train_X = self.train_X[:10000]
+        # self.train_X = self.train_X[:100]
+        # self.valid_X = self.valid_X[:10]
+        # self.test_X = self.test_X[:10]
+
         self._num_examples = self.train_X.shape[0]
 
         self.train_mean = self.train_X.mean(axis=(0, 1, 2))
@@ -101,9 +104,6 @@ class cifar_10_data:
             self._index_in_epoch += batch_size
             end = self._index_in_epoch
 
-            # add small perturbations to the data before passing out
-            # as a method of "augmenting" the dataset but without
-            # actually changing the training set size
             data = self._data[start:end]
             labels = self._data[start:end]
             return data, labels
@@ -112,13 +112,13 @@ class cifar_10_data:
         return np.subtract(data, self.train_mean) / self.train_stddev.astype(float)
 
     def unitNormalize(self, data):
-        return np.subtract(data, self.train_min.astype(float)) / self.train_max.astype(float)
+        return np.subtract(data[:,:,:], self.train_min.astype(float)) / self.train_max.astype(float)
 
     def unNormalize(self, data):
         return np.add(data * self.train_stddev, self.train_mean)
 
     def unitUnnormalize(self, data):
-        return np.add(data * self.train_max.astype(float), self.train_min.astype(float))
+        return np.add((data * self.train_max.astype(float))[:,:,:], self.train_min.astype(float))
 
 
 def read_cifar10_data():

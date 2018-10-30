@@ -50,28 +50,28 @@ class my_autoencoder:
         output = tf.layers.flatten(self.y_)
 
         with tf.name_scope('Encoder_1'):
-            self.weights_1 = tf.Variable(tf.truncated_normal([3072, 2048]), name='weights_1')
-            self.enc1_bias = tf.Variable(tf.truncated_normal([2048]), name='enc1_bias')
+            self.weights_1 = tf.Variable(tf.truncated_normal([3072, 2048], stddev=self.stddev), name='weights_1')
+            self.enc1_bias = tf.Variable(tf.truncated_normal([2048], stddev=self.stddev), name='enc1_bias')
 
-            self.encoded_1 = tf.nn.sigmoid(tf.add(tf.matmul(input, self.weights_1), self.enc1_bias), name='encoded_1')
+            self.encoded_1 = tf.nn.relu(tf.add(tf.matmul(input, self.weights_1), self.enc1_bias), name='encoded_1')
 
         with tf.name_scope('Encoder_2'):
-            self.weights_2 = tf.Variable(tf.truncated_normal([2048, self.latent_dim]), name='weights_2')
-            self.enc2_bias = tf.Variable(tf.truncated_normal([self.latent_dim]), name='enc2_bias')
+            self.weights_2 = tf.Variable(tf.truncated_normal([2048, self.latent_dim], stddev=self.stddev), name='weights_2')
+            self.enc2_bias = tf.Variable(tf.truncated_normal([self.latent_dim], stddev=self.stddev), name='enc2_bias')
 
-            encoded = tf.nn.sigmoid(tf.add(tf.matmul(self.encoded_1, self.weights_2), self.enc2_bias), name='encoded_2')
+            encoded = tf.nn.relu(tf.add(tf.matmul(self.encoded_1, self.weights_2), self.enc2_bias), name='encoded_2')
 
         with tf.name_scope('Decoder_2'):
-            self.dec2_bias = tf.Variable(tf.truncated_normal([2048]), name='dec3_bias')
-            self.decoded_2 = tf.nn.sigmoid(tf.add(tf.matmul(encoded, tf.transpose(self.weights_2)), self.dec2_bias), name='decoded_2')
+            self.dec2_bias = tf.Variable(tf.truncated_normal([2048], stddev=self.stddev), name='dec3_bias')
+            self.decoded_2 = tf.nn.relu(tf.add(tf.matmul(encoded, tf.transpose(self.weights_2)), self.dec2_bias), name='decoded_2')
 
         with tf.name_scope('Decoder_1'):
-            self.dec1_bias = tf.Variable(tf.truncated_normal([3072]), name='dec1_bias')
-            decoded = tf.nn.sigmoid(tf.add(tf.matmul(self.decoded_2, tf.transpose(self.weights_1)), self.dec1_bias), name='decoded_1')
+            self.dec1_bias = tf.Variable(tf.truncated_normal([3072], stddev=self.stddev), name='dec1_bias')
+            self.decoded = tf.nn.relu(tf.add(tf.matmul(self.decoded_2, tf.transpose(self.weights_1)), self.dec1_bias), name='decoded_1')
 
-        self.y = tf.reshape(decoded, [-1, 32, 32, 3], name='output')
+        self.y = tf.reshape(self.decoded, [-1, 32, 32, 3], name='output')
 
-        self.loss = tf.reduce_mean(tf.pow(tf.subtract(output, decoded), 2))
+        self.loss = tf.reduce_mean(tf.squared_difference(output, self.decoded))
 
         self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss)
 
@@ -84,29 +84,32 @@ class my_autoencoder:
             sys.stdout.write("Epoch: {} ".format(epoch))
             sys.stdout.flush()
 
-            output_im, _ = self.data.next_batch(self.batch_size)
+            raw_im, _ = self.data.next_batch(self.batch_size)
 
             i = 0
-            while output_im != []:
-                input_im = dp.randNoise(self.data.unitNormalize(output_im), stddev=self.stddev)
+            while raw_im != []:
+                output_im = self.data.unitNormalize(raw_im)
+                input_im = dp.randNoise(output_im, stddev=self.stddev)
 
                 self.sess.run(self.train_step, feed_dict={self.x: input_im, self.y_: output_im})
+                # output = self.sess.run(self.decoded, feed_dict={self.x: input_im, self.y_: output_im})
+                # loss = self.sess.run(self.loss, feed_dict={self.x: input_im, self.y_: output_im})
 
                 if i % 100 == 0:
                     sys.stdout.write('=')
                     sys.stdout.flush()
 
                 i += 1
-                output_im, _ = self.data.next_batch(self.batch_size)
+                raw_im, _ = self.data.next_batch(self.batch_size)
 
             # calculate training loss
-            y_ = self.data.unitUnnormalize(self.data.train_X[:10000])
-            X = dp.randNoise(y_, self.stddev)
+            y_ = self.data.unitNormalize(self.data.train_X[:10000])
+            X = dp.randNoise(y_, stddev=self.stddev)
             train_acc = self.sess.run(self.loss, feed_dict={self.x: X, self.y_: y_})
 
             # calculate validation loss
-            y_ = self.data.unitUnnormalize(self.data.valid_X)
-            X = dp.randNoise(y_, self.stddev)
+            y_ = self.data.unitNormalize(self.data.valid_X)
+            X = dp.randNoise(y_, stddev=self.stddev)
             valid_acc = self.sess.run(self.loss, feed_dict={self.x: X, self.y_: y_})
 
             train_acc_record.append(train_acc)
@@ -120,6 +123,7 @@ class my_autoencoder:
             self.saver.save(sess, save_path=save_path)
 
             choice = np.random.choice(10000, 10, replace=False)
+            # choice = np.random.choice(10, 10, replace=False)
             save_img = "./img/img_{}/epoch_{}.png".format(task, epoch)
             if not os.path.exists('/'.join(save_img.split('/')[:-1])):
                 os.makedirs('/'.join(save_img.split('/')[:-1]))
@@ -128,7 +132,8 @@ class my_autoencoder:
         return train_acc_record, valid_acc_record
 
     def test(self):
-        X, y_ = self.data.fetch_noisy_test_data()
+        y_ = self.data.unitUnnormalize(self.data.test_X)
+        X = dp.randNoise(y_, stddev=self.stddev)
         test_loss = self.sess.run(self.loss, feed_dict={self.x: X, self.y_: y_})
         sys.stdout.write('Test loss: {}\n'.format(test_loss))
         return test_loss
@@ -168,7 +173,7 @@ class my_autoencoder:
         if show:
             plt.show()
 
-        plt.clf()
+        plt.close()
 
 
 if __name__ == "__main__":
