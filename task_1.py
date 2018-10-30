@@ -1,7 +1,11 @@
 import tensorflow as tf
+import numpy as np
 import sys
 import os
 from data_processing import cifar_10_data
+import data_processing as dp
+
+import matplotlib.pyplot as plt
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -10,13 +14,14 @@ cur_dir = os.path.curdir
 
 class my_autoencoder:
 
-    def __init__(self, sess=None, latent_dim=1024, learning_rate=1e-4, epochs=50, batch_size=100, data=None, task=None, restore=False, restore_path=None):
+    def __init__(self, sess=None, latent_dim=1024, learning_rate=1e-4, epochs=150, batch_size=100, stddev=0.05, data=None, task=None, restore=False, restore_path=None):
         self.sess = sess
         self.latent_dim = latent_dim
         self.learning_rate = learning_rate
         self.epochs = epochs
         self.batch_size = batch_size
         self.data = data
+        self.stddev = stddev
 
         if task is None:
             logging.error("No task enumerated!")
@@ -38,12 +43,14 @@ class my_autoencoder:
         self.x = tf.placeholder(tf.float32, [None, 32, 32, 3], name='input_layer')
         self.y_ = tf.placeholder(tf.float32, [None, 32, 32, 3], name='ground_truth')
 
+        input = tf.layers.flatten(self.x)
+        output = tf.layers.flatten(self.y_)
+
         with tf.name_scope('Encoder_1'):
-            flat = tf.reshape(self.x, [-1, 3072])
             self.weights_1 = tf.Variable(tf.truncated_normal([3072, 2048]), name='weights_1')
             self.enc1_bias = tf.Variable(tf.truncated_normal([2048]), name='enc1_bias')
 
-            self.encoded_1 = tf.nn.sigmoid(tf.add(tf.matmul(flat, self.weights_1), self.enc1_bias), name='encoded_1')
+            self.encoded_1 = tf.nn.sigmoid(tf.add(tf.matmul(input, self.weights_1), self.enc1_bias), name='encoded_1')
 
         with tf.name_scope('Encoder_2'):
             self.weights_2 = tf.Variable(tf.truncated_normal([2048, self.latent_dim]), name='weights_2')
@@ -61,7 +68,7 @@ class my_autoencoder:
 
         self.y = tf.reshape(decoded, [-1, 32, 32, 3], name='output')
 
-        self.loss = tf.reduce_mean(tf.pow(tf.subtract(self.y_, self.y), 2))
+        self.loss = tf.reduce_mean(tf.pow(tf.subtract(output, decoded), 2))
 
         self.train_step = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss)
 
@@ -74,8 +81,8 @@ class my_autoencoder:
             sys.stdout.write("Epoch: {} ".format(epoch))
             sys.stdout.flush()
 
-            input_im, output_im = self.data.next_noisyBatch(self.batch_size, stddev=0.05)
-
+            output_im, _ = self.data.next_batch(self.batch_size)
+            input_im = dp.randNoise(self.data.unitNormalize(output_im), stddev=self.stddev)
             i = 0
             while input_im != [] and output_im != []:
 
@@ -86,7 +93,8 @@ class my_autoencoder:
                     sys.stdout.flush()
 
                 i += 1
-                input_im, output_im = self.data.next_noisyBatch(self.batch_size, stddev=0.05)
+                output_im, _ = self.data.next_batch(self.batch_size)
+                input_im = dp.randNoise(self.data.unitNormalize(output_im), stddev=self.stddev)
 
             # calculate training loss
             X, y_ = self.data.fetch_noisy_train_data(10000)
@@ -106,6 +114,8 @@ class my_autoencoder:
                 os.makedirs('/'.join(save_path.split('/')[:-1]))
             self.saver.save(sess, save_path=save_path)
 
+            self.visualize(np.random.choice(self.data.test_X, 10), "./img/epoch_{}.png".format(epoch))
+
         return train_acc_record, valid_acc_record
 
     def test(self):
@@ -119,11 +129,43 @@ class my_autoencoder:
 
         return output
 
+    def visualize(self, input, path=None, show=False):
+
+        # plot originals
+        samples = input.shape[0]
+
+        fig, ax = plt.subplots(3, samples)
+
+        for i in range(samples):
+            ax[0, i].imshow(input[i])
+
+        # distort originals
+        distorted = dp.randNoise(self.data.unitNormalize(input), self.stddev)
+        distorted_im = self.data.unitUnnormalize(distorted).astype(np.uint8)
+
+        for i in range(samples):
+            ax[1, i].imshow(distorted_im[i])
+
+        # get output
+        output = self.use(distorted)
+        output_im = self.data.unitUnnormalize(output).astype(np.uint8)
+
+        for i in range(samples):
+            ax[2, i].imshow(output_im[i])
+
+        if path is not None:
+           fig.savefig(path, dpi=(fig.dpi)*2)
+
+        if show:
+            plt.show()
+
+        plt.clf()
+
+
 if __name__ == "__main__":
     # TASK 1
     # read in the data - may try several different types and ranges for distortion
     data = cifar_10_data()
-    data.unitNormalize()
 
     graph = tf.get_default_graph()
     sess = tf.Session()
