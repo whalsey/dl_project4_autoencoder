@@ -14,7 +14,7 @@ import sys
 import data_processing as dp
 
 class vgg16:
-    def __init__(self, weights=None, sess=None, lr=5e-5, epochs=150, batch=100, decay=0.7, keep_rate=0.85):
+    def __init__(self, weights=None, sess=None, lr=5e-5, epochs=150, batch=100, decay=0.7, keep_rate=0.65):
         self.lr = lr
         self.decay = decay
         self.epochs = epochs
