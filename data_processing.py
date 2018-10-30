@@ -87,7 +87,7 @@ class cifar_10_data:
             idx = np.arange(0, self._num_examples)  # get all possible indexes
             np.random.shuffle(idx)  # shuffle index
             self._data = self.train_X[idx]  # get list of `num` random samples
-            self._labels = self.train_X[idx]
+            self._labels = self.train_y[idx]
 
         # go to the next batch
         if start + batch_size > self._num_examples:
