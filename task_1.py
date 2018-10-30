@@ -6,6 +6,8 @@ from data_processing import cifar_10_data
 import data_processing as dp
 
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 
 import logging
 logging.basicConfig(level=logging.DEBUG)
