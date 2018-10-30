@@ -84,7 +84,7 @@ class my_autoencoder:
             output_im, _ = self.data.next_batch(self.batch_size)
 
             i = 0
-            while input_im != [] and output_im != []:
+            while output_im != []:
                 input_im = dp.randNoise(self.data.unitNormalize(output_im), stddev=self.stddev)
 
                 self.sess.run(self.train_step, feed_dict={self.x: input_im, self.y_: output_im})
