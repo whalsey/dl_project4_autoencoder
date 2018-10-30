@@ -17,40 +17,10 @@ def pad_image(dataset, padding):
 def resize_image(dataset, new_size):
     return tf.image.resize_images(dataset, new_size, method=tf.image.resize_bilinear)
 
-def randShift(dataset):
-    horlen = dataset.shape[1]
-    verlen = dataset.shape[2]
-
-    hor = random.randint(-3, 3)
-
-    ver = random.randint(-3, 3)
-    tmp = np.roll(dataset, shift=(hor), axis=(2))
-    tmp = np.roll(tmp, shift=(ver), axis=(1))
-
-    if hor > 0:
-        for i in range(hor):
-            tmp[:,:,i,:] = tmp[:,:,hor,:]
-    else:
-        for i in range(horlen+hor, horlen, 1):
-            tmp[:,:,i,:] = tmp[:,:,hor-1,:]
-
-    if ver > 0:
-        for i in range(ver):
-            tmp[:,i,:,:] = tmp[:,ver,:,:]
-    else:
-        for i in range(verlen+ver, verlen, 1):
-            tmp[:,i,:,:] = tmp[:,ver-1,:,:]
-
-    return tmp
-
 def randNoise(dataset, stddev=0.05):
     noise = np.random.normal(0, stddev, dataset.shape)
     ret = np.add(dataset, noise)
     return ret
-
-def sapNoise(dataset, prob=0.3):
-    # todo
-    return dataset
 
 class cifar_10_data:
     def __init__(self):
@@ -99,6 +69,11 @@ class cifar_10_data:
 #        self.train_X = self.train_X[:10000]
         self._num_examples = self.train_X.shape[0]
 
+        self.train_mean = self.train_X.mean(axis=(0, 1, 2))
+        self.train_stddev = self.train_X.std(axis=(0, 1, 2))
+        self.train_min = self.train_X.min(axis=(0, 1, 2))
+        self.train_max = self.train_X.max(axis=(0, 1, 2))
+
         return
 
     # code addapted from https://stackoverflow.com/questions/40994583/how-to-implement-tensorflows-next-batch-for-own-data#43538941
@@ -121,7 +96,7 @@ class cifar_10_data:
 
             self._index_in_epoch = 0  # avoid the case where the #sample != integer times of batch_size
 
-            return []
+            return [], []
         else:
             self._index_in_epoch += batch_size
             end = self._index_in_epoch
@@ -129,73 +104,22 @@ class cifar_10_data:
             # add small perturbations to the data before passing out
             # as a method of "augmenting" the dataset but without
             # actually changing the training set size
-            data = randShift(self._data[start:end])
-            return data
+            data = self._data[start:end]
+            labels = self._data[start:end]
+            return data, labels
 
-    def next_noisyBatch(self, batchsize, stddev=0.1):
-        target = self.next_batch(batchsize)
+    def normalize(self, data):
+        return np.subtract(data, self.train_mean) / self.train_stddev.astype(float)
 
-        if target == []:
-            return [], []
-        else:
-            return randNoise(target, stddev=stddev), target
+    def unitNormalize(self, data):
+        return np.subtract(data, self.train_min.astype(float)) / self.train_max.astype(float)
 
-    def next_droppedBatch(self, batchsize, drop=0.01):
-        target = self.next_batch(batchsize)
-        return randNoise(target, stddev=drop), target
+    def unNormalize(self, data):
+        return np.add(data * self.train_stddev, self.train_mean)
 
-    def fetch_noisy_train_data(self, number):
-        return randNoise(self.train_X[:number]), self.train_X[:number]
+    def unitUnnormalize(self, data):
+        return np.add(data * self.train_max.astype(float), self.train_min.astype(float))
 
-    def fetch_noisy_valid_data(self):
-        return randNoise(self.valid_X), self.valid_X
-
-    def fetch_noisy_test_data(self):
-        return randNoise(self.test_X), self.test_X
-
-    def get_mean(self):
-        return self.train_X.mean(axis=(0, 1, 2))
-
-    def get_stddev(self):
-        return self.train_X.std(axis=(0, 1, 2))
-
-    def get_min(self):
-        return self.train_X.min(axis=(0, 1, 2))
-
-    def get_max(self):
-        return self.train_X.max(axis=(0, 1, 2))
-
-    def normalize(self):
-        mean = self.get_mean()
-        std = self.get_stddev()
-        self.train_X = np.subtract(self.train_X, mean)
-        self.valid_X = np.subtract(self.valid_X, mean)
-        self.test_X = np.subtract(self.test_X, mean)
-
-        self.train_X = self.train_X / std
-        self.valid_X = self.valid_X / std
-        self.test_X = self.test_X / std
-
-    def unitNormalize(self):
-        min = self.get_min()
-        max = self.get_max()
-
-        self.min = min
-        self.max = max
-
-        self.train_X = np.subtract(self.train_X, min).astype(float)
-        self.valid_X = np.subtract(self.valid_X, min).astype(float)
-        self.test_X = np.subtract(self.test_X, min).astype(float)
-
-        self.train_X = self.train_X / max
-        self.valid_X = self.valid_X / max
-        self.test_X = self.test_X / max
-
-    def unitUnnormalize(self, input):
-        tmp = input * self.max
-        tmp = np.add(tmp, self.min)
-
-        return tmp
 
 def read_cifar10_data():
     return cifar_10_data()
