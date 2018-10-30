@@ -246,18 +246,17 @@ class vgg16:
             sys.stdout.write("epoch {}: ".format(i))
             sys.stdout.flush()
             # todo - will have to implement batching for cifar-10
-            batch = self.data.next_batch(self.batch)
+            batch, labels = self.data.next_batch(self.batch)
             old_batch = []
 
             j = 0
-            while batch[0] != []:
+            while batch != []:
                 if j%10 == 0:
                     sys.stdout.write("=")
                     sys.stdout.flush()
-                self.sess.run([self.train_step, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch[0]), self.y_: batch[1], self.training : True, self.keep_drop_prob : self.keep_rate})
+                self.sess.run([self.train_step, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
 
-                old_batch = batch
-                batch = self.data.next_batch(self.batch)
+                batch, labels = self.data.next_batch(self.batch)
                 j += 1
 
             sys.stdout.write('\n')
