@@ -120,7 +120,10 @@ class my_autoencoder:
             self.saver.save(sess, save_path=save_path)
 
             choice = np.random.choice(10000, 10, replace=False)
-            self.visualize(self.data.test_X[choice], "./img/epoch_{}.png".format(epoch))
+            save_img = "./img/img_{}/epoch_{}.png"
+            if not os.path.exists('/'.join(save_img.split('/')[:-1])):
+                os.makedirs('/'.join(save_img.split('/')[:-1]))
+            self.visualize(self.data.test_X[choice], save_img.format(task, epoch))
 
         return train_acc_record, valid_acc_record
 
