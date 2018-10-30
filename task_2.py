@@ -36,12 +36,12 @@ if __name__ == '__main__':
 
     # initialize and load ae and filter test set
     graph = tf.get_default_graph()
-    sess = tf.Session()
+    sess2 = tf.Session()
 
     data = cifar_10_data()
 
     # first need initialize the autoencoder with saved weights
-    net2 = my_autoencoder(sess=sess, task=2, restore=True, data=data, restore_path='./tmp/task_1/model_epoch_149.ckpt')
+    net2 = my_autoencoder(sess=sess2, task=2, restore=True, data=data, restore_path='./tmp/task_1/model_epoch_149.ckpt')
 
     # calculate accuracy of denoised images
     new_images = net2.use(data.unitNormalize(data.test_X))

@@ -105,7 +105,7 @@ class cifar_10_data:
             end = self._index_in_epoch
 
             data = self._data[start:end]
-            labels = self._data[start:end]
+            labels = self._labels[start:end]
             return data, labels
 
     def normalize(self, data):
