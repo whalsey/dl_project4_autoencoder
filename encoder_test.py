@@ -18,7 +18,7 @@ if __name__=="__main__":
     data = cifar_10_data()
 
     # first need initialize the autoencoder with saved weights
-    net = my_autoencoder(sess=sess, task=2, restore=True, data=data, restore_path='./tmp/task_1/model_epoch_49.ckpt')
+    net = my_autoencoder(sess=sess, task=2, restore=True, data=data, restore_path='./tmp/task_1/model_epoch_149.ckpt')
 
     training = data.train_X[:10]
     net.visualize(training, 'temp.png')

@@ -132,7 +132,7 @@ class my_autoencoder:
         return train_acc_record, valid_acc_record
 
     def test(self):
-        y_ = self.data.unitUnnormalize(self.data.test_X)
+        y_ = self.data.unitNormalize(self.data.test_X)
         X = dp.randNoise(y_, stddev=self.stddev)
         test_loss = self.sess.run(self.loss, feed_dict={self.x: X, self.y_: y_})
         sys.stdout.write('Test loss: {}\n'.format(test_loss))

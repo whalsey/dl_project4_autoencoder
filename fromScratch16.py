@@ -11,13 +11,10 @@
 import tensorflow as tf
 import numpy as np
 import sys
-import data_processing
-
-data = data_processing.read_cifar10_data()
-data.normalize()
+import data_processing as dp
 
 class vgg16:
-    def __init__(self, weights=None, sess=None, lr=5e-5, epochs=100, batch=100, decay=0.7, keep_rate=0.85):
+    def __init__(self, weights=None, sess=None, lr=5e-5, epochs=150, batch=100, decay=0.7, keep_rate=0.85):
         self.lr = lr
         self.decay = decay
         self.epochs = epochs
@@ -25,6 +22,7 @@ class vgg16:
         self.keep_rate = keep_rate
         self.convlayers()
         self.fc_layers()
+        self.data = dp.read_cifar10_data()
         self.probs = tf.nn.softmax(self.fc3l)
         if weights is not None and sess is not None:
             self.load_weights(weights, sess)
@@ -248,7 +246,7 @@ class vgg16:
             sys.stdout.write("epoch {}: ".format(i))
             sys.stdout.flush()
             # todo - will have to implement batching for cifar-10
-            batch = data.next_batch(self.batch)
+            batch = self.data.next_batch(self.batch)
             old_batch = []
 
             j = 0
@@ -256,18 +254,17 @@ class vgg16:
                 if j%10 == 0:
                     sys.stdout.write("=")
                     sys.stdout.flush()
-                self.sess.run([self.train_step, extra_update_ops], feed_dict={self.x: batch[0], self.y_: batch[1], self.training : True, self.keep_drop_prob : self.keep_rate})
+                self.sess.run([self.train_step, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch[0]), self.y_: batch[1], self.training : True, self.keep_drop_prob : self.keep_rate})
 
                 old_batch = batch
-                batch = data.next_batch(self.batch)
+                batch = self.data.next_batch(self.batch)
                 j += 1
 
             sys.stdout.write('\n')
             sys.stdout.flush()
             if i % report_freq == 0 and old_batch != []:
 
-                train_acc = self.sess.run(self.accuracy,
-                                          feed_dict={self.x: data.train_X[:10000], self.y_: data.train_y[:10000], self.training : False, self.keep_drop_prob : 1})
+                train_acc = self.sess.run(self.accuracy, feed_dict={self.x: self.data.unitNormalize(self.data.train_X[:10000]), self.y_: self.data.train_y[:10000], self.training : False, self.keep_drop_prob : 1})
                 train_result.append(train_acc)
 
                 valid_acc = self.valid_eval()
@@ -301,7 +298,22 @@ class vgg16:
 
         # for i in range(0,10000,50):
         # for i in range(0, 500, 50):
-        ave = self.sess.run(self.accuracy, feed_dict={self.x: data.test_X, self.y_: data.test_y, self.training : False, self.keep_drop_prob : 1})
+        ave = self.sess.run(self.accuracy, feed_dict={self.x: self.data.unitNormalize(self.data.test_X), self.y_: self.data.test_y, self.training : False, self.keep_drop_prob : 1})
+
+        # ave = np.array(average).mean()
+
+        print('Test accuracy accuracy %g' % (ave))
+
+        return ave
+
+    def use(self, input):
+        self.eval()
+
+        # for i in range(0,10000,50):
+        # for i in range(0, 500, 50):
+        ave = self.sess.run(self.accuracy,
+                            feed_dict={self.x: self.data.unitNormalize(input[0]), self.y_: input[1],
+                                       self.training: False, self.keep_drop_prob: 1})
 
         # ave = np.array(average).mean()
 
@@ -314,7 +326,7 @@ class vgg16:
 
         # for i in range(0,10000,50):
         # for i in range(0, 500, 50):
-        ave = self.sess.run(self.accuracy, feed_dict={self.x: data.valid_X, self.y_: data.valid_y, self.training : False, self.keep_drop_prob : 1})
+        ave = self.sess.run(self.accuracy, feed_dict={self.x: self.data.unitNormalize(self.data.valid_X), self.y_: self.data.valid_y, self.training : False, self.keep_drop_prob : 1})
         # print(ave)
 
         # ave = np.array(average).mean()
