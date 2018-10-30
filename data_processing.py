@@ -95,7 +95,7 @@ class cifar_10_data:
             idx0 = np.arange(0, self._num_examples)  # get all possible indexes
             np.random.shuffle(idx0)  # shuffle indexes
             self._data = self.train_X[idx0]  # get list of `num` random samples
-            self._labels = self.train_X[idx0]
+            self._labels = self.train_y[idx0]
 
             self._index_in_epoch = 0  # avoid the case where the #sample != integer times of batch_size
 
@@ -141,4 +141,3 @@ if __name__=="__main__":
 
     test = np.arange(150).reshape((3,5,5,2))
 
-    output = randShift(test)

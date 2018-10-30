@@ -247,7 +247,6 @@ class vgg16:
             sys.stdout.flush()
             # todo - will have to implement batching for cifar-10
             batch, labels = self.data.next_batch(self.batch)
-            old_batch = []
 
             j = 0
             while batch != []:
