@@ -97,11 +97,13 @@ class my_autoencoder:
                 output_im, _ = self.data.next_batch(self.batch_size)
 
             # calculate training loss
-            X, y_ = self.data.fetch_noisy_train_data(10000)
+            y_ = self.data.unitUnnormalize(self.data.train_X[:10000])
+            X = dp.randNoise(y_, self.stddev)
             train_acc = self.sess.run(self.loss, feed_dict={self.x: X, self.y_: y_})
 
             # calculate validation loss
-            X, y_ = self.data.fetch_noisy_valid_data()
+            y_ = self.data.unitUnnormalize(self.data.valid_X)
+            X = dp.randNoise(y_, self.stddev)
             valid_acc = self.sess.run(self.loss, feed_dict={self.x: X, self.y_: y_})
 
             train_acc_record.append(train_acc)
