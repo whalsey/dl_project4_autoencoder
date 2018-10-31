@@ -8,12 +8,12 @@ import data_processing as dp
 
 if __name__ == '__main__':
     # initialize and load ae and filter test set
-    sess2 = tf.Session()
+    sess = tf.Session()
 
     data = cifar_10_data()
 
     # first need initialize the autoencoder with saved weights
-    net2 = my_autoencoder(sess=sess2, task=2, restore=True, data=data, restore_path='./tmp/task_1/model_epoch_149.ckpt')
+    net2 = my_autoencoder(sess=sess, task=2, restore=True, data=data, restore_path='./tmp/task_1/model_epoch_149.ckpt')
 
     # train vgg
     print("initializing network")
@@ -42,11 +42,14 @@ if __name__ == '__main__':
         o.write(buffer)
         o.flush()
 
-
+    tf.reset_default_graph()
 
     # calculate accuracy of denoised images
+    net2.visualize(data.test_X[:10], '/img/img_2')
     new_images = net2.use(data.unitNormalize(data.test_X))
     target = data.test_y
+
+    tf.reset_default_graph()
 
     results = net.use(new_images, target)
     with open("something.csv", 'w') as o:
