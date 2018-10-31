@@ -212,7 +212,7 @@ class tiny_vgg:
 
         return ave
 
-    def use(self, input):
+    def use(self, input, target):
         self.eval()
 
         # for i in range(0,10000,50):

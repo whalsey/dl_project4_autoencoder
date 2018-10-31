@@ -46,8 +46,9 @@ if __name__ == '__main__':
 
     # calculate accuracy of denoised images
     new_images = net2.use(data.unitNormalize(data.test_X))
+    target = data.test_y
 
-    results = net.use(new_images)
+    results = net.use(new_images, target)
     with open("something.csv", 'w') as o:
         buffer = results
         o.write(buffer)
