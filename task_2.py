@@ -1,17 +1,25 @@
 import tensorflow as tf
 import numpy as np
 
-from fromScratch16 import vgg16
+from tiny_vgg import tiny_vgg
 from task_1 import my_autoencoder
 from data_processing import cifar_10_data
 import data_processing as dp
 
 if __name__ == '__main__':
+    # initialize and load ae and filter test set
+    sess2 = tf.Session()
+
+    data = cifar_10_data()
+
+    # first need initialize the autoencoder with saved weights
+    net2 = my_autoencoder(sess=sess2, task=2, restore=True, data=data, restore_path='./tmp/task_1/model_epoch_149.ckpt')
+
     # train vgg
     print("initializing network")
     sess = tf.Session()
     tf.reset_default_graph()
-    net = vgg16(sess=sess)
+    net = tiny_vgg(sess=sess)
     print("training")
     train_acc, valid_acc, lr_l = net.train(1)
     print("testing")
@@ -34,14 +42,7 @@ if __name__ == '__main__':
         o.write(buffer)
         o.flush()
 
-    # initialize and load ae and filter test set
-    graph = tf.get_default_graph()
-    sess2 = tf.Session()
 
-    data = cifar_10_data()
-
-    # first need initialize the autoencoder with saved weights
-    net2 = my_autoencoder(sess=sess2, task=2, restore=True, data=data, restore_path='./tmp/task_1/model_epoch_149.ckpt')
 
     # calculate accuracy of denoised images
     new_images = net2.use(data.unitNormalize(data.test_X))
