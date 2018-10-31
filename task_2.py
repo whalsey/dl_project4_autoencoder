@@ -50,6 +50,6 @@ if __name__ == '__main__':
 
     results = net.use(new_images, target)
     with open("something.csv", 'w') as o:
-        buffer = results
+        buffer = results.__str__()
         o.write(buffer)
         o.flush()
