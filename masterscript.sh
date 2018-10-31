@@ -38,6 +38,6 @@ else
 	python $1 > >(tee `date "+%Y-%m-%d_%H-%M-%S_out"`.log) 2> >(tee `date "+%Y-%m-%d_%H-%M-%S_err"`.log)
 
 	#sudo shutdown -h now
-	#sudo shutdown
+	sudo shutdown
 
 fi
