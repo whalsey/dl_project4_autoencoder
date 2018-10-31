@@ -217,7 +217,7 @@ class tiny_vgg:
 
         # for i in range(0,10000,50):
         # for i in range(0, 500, 50):
-        ave = self.sess.run(self.accuracy, feed_dict={self.x: self.data.unitNormalize(input[0]), self.y_: input[1], self.training: False, self.keep_drop_prob: 1})
+        ave = self.sess.run(self.accuracy, feed_dict={self.x: self.data.unitNormalize(input), self.y_: target, self.training: False, self.keep_drop_prob: 1})
 
         # ave = np.array(average).mean()
 
