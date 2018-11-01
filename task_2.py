@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     # tf.reset_default_graph()
 
-    results = net.use(new_images, target)
+    results = net.use(data.unitNormalize(new_images), target)
     with open("something.csv", 'w') as o:
         buffer = results.__str__()
         o.write(buffer)
