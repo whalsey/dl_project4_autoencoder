@@ -58,9 +58,12 @@ if __name__ == '__main__':
     target = data.test_y
 
     # tf.reset_default_graph()
-
-    results = net.use(data.unitNormalize(new_images), target)
+    results1 = net.use(data.unitNormalize(data.test_X), data.test_y)
+    results2 = net.use(data.unitNormalize(new_images), target)
     with open("something.csv", 'w') as o:
-        buffer = results.__str__()
+        buffer = results1.__str__() + '\n'
+        o.write(buffer)
+        o.flush()
+        buffer = results2.__str__()
         o.write(buffer)
         o.flush()
