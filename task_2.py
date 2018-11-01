@@ -48,7 +48,7 @@ if __name__ == '__main__':
     tf.reset_default_graph()
 
     # calculate accuracy of denoised images
-    net2.visualize(data.test_X[:10], '/img/img_2')
+    net2.visualize(data.test_X[:10], './img/img_2/img_2')
     new_images = net2.use(data.unitNormalize(data.test_X))
     target = data.test_y
 
