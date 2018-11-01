@@ -23,7 +23,7 @@ if __name__ == '__main__':
     # train vgg
     print("initializing network")
     sess = tf.Session()
-    tf.reset_default_graph()
+    # tf.reset_default_graph()
     net = tiny_vgg(sess=sess)
     print("training")
     train_acc, valid_acc, lr_l = net.train(1)
@@ -47,7 +47,7 @@ if __name__ == '__main__':
         o.write(buffer)
         o.flush()
 
-    tf.reset_default_graph()
+    # tf.reset_default_graph()
 
     # calculate accuracy of denoised images
     fn = './img/img_2/img_2'
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     new_images = net2.use(data.unitNormalize(data.test_X))
     target = data.test_y
 
-    tf.reset_default_graph()
+    # tf.reset_default_graph()
 
     results = net.use(new_images, target)
     with open("something.csv", 'w') as o:
