@@ -1,6 +1,8 @@
 import matplotlib
 matplotlib.use('Agg')
 
+import os
+
 import tensorflow as tf
 import numpy as np
 
@@ -48,7 +50,10 @@ if __name__ == '__main__':
     tf.reset_default_graph()
 
     # calculate accuracy of denoised images
-    net2.visualize(data.test_X[:10], './img/img_2/img_2')
+    fn = './img/img_2/img_2'
+    if not os.path.exists('/'.join(fn.split('/')[:-1])):
+        os.makedirs('/'.join(fn.split('/')[:-1]))
+    net2.visualize(data.test_X[:10], fn)
     new_images = net2.use(data.unitNormalize(data.test_X))
     target = data.test_y
 
