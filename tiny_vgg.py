@@ -159,12 +159,11 @@ class tiny_vgg:
         lr_l = []
         train_result = []
         valid_result = []
-        stop_acc = 0
-        stuck = 0
 
         extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
         # train layer 1
+        sys.stdout.write('layer 1: ')
         for i in range(self.epochs):
             sys.stdout.write("epoch {}: ".format(i))
             sys.stdout.flush()
@@ -185,6 +184,7 @@ class tiny_vgg:
             sys.stdout.flush()
 
         # train layer 2
+        sys.stdout.write('layer 2: ')
         for i in range(self.epochs):
             sys.stdout.write("epoch {}: ".format(i))
             sys.stdout.flush()
@@ -205,6 +205,7 @@ class tiny_vgg:
             sys.stdout.flush()
 
         # train layer 3
+        sys.stdout.write('layer 3: ')
         for i in range(self.epochs):
             sys.stdout.write("epoch {}: ".format(i))
             sys.stdout.flush()
@@ -225,6 +226,7 @@ class tiny_vgg:
             sys.stdout.flush()
 
         # train layer 4
+        sys.stdout.write('layer 4: ')
         for i in range(self.epochs):
             sys.stdout.write("epoch {}: ".format(i))
             sys.stdout.flush()
@@ -245,6 +247,7 @@ class tiny_vgg:
             sys.stdout.flush()
 
         # train classifier
+        sys.stdout.write('classifier: ')
         for i in range(self.epochs):
             sys.stdout.write("epoch {}: ".format(i))
             sys.stdout.flush()
@@ -265,6 +268,7 @@ class tiny_vgg:
             sys.stdout.flush()
 
         # tune full network
+        sys.stdout.write('full net: ')
         for i in range(self.epochs):
             sys.stdout.write("epoch {}: ".format(i))
             sys.stdout.flush()
@@ -293,20 +297,9 @@ class tiny_vgg:
 
                 lr_l.append(self.lr)
 
-                stuck = stuck if valid_acc > stop_acc else stuck + 1
-                stop_acc = valid_acc if valid_acc > stop_acc else stop_acc
-
                 print('step %d, training accuracy %g' % (i, train_acc))
                 print('step %d, validation accuracy %g' % (i, valid_acc))
                 print('step %d, learning rate %g' % (i, self.lr))
-
-            # learning rate decay
-            if stuck >= 3 and stop_acc:
-                self.lr *= self.decay
-                stuck = 0
-
-            if len(valid_result) > 6 and stop_acc not in valid_result[-6:]:
-                break
 
         return train_result, valid_result, lr_l
 
