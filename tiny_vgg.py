@@ -175,7 +175,8 @@ class tiny_vgg:
                 if j%10 == 0:
                     sys.stdout.write("=")
                     sys.stdout.flush()
-                self.sess.run([self.train_step1, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+                # self.sess.run([self.train_step1, extra_update_ops], feed_dict={self.x: dp.randNoise(self.data.unitNormalize(batch), 0.05), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+                self.sess.run([self.train_step, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training: True, self.keep_drop_prob: self.keep_rate})
 
                 batch, labels = self.data.next_batch(self.batch)
                 j += 1
@@ -196,7 +197,8 @@ class tiny_vgg:
                 if j%10 == 0:
                     sys.stdout.write("=")
                     sys.stdout.flush()
-                self.sess.run([self.train_step2, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+                # self.sess.run([self.train_step2, extra_update_ops], feed_dict={self.x: dp.randNoise(self.data.unitNormalize(batch), 0.05), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+                self.sess.run([self.train_step, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training: True, self.keep_drop_prob: self.keep_rate})
 
                 batch, labels = self.data.next_batch(self.batch)
                 j += 1
@@ -217,7 +219,8 @@ class tiny_vgg:
                 if j%10 == 0:
                     sys.stdout.write("=")
                     sys.stdout.flush()
-                self.sess.run([self.train_step3, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+                # self.sess.run([self.train_step3, extra_update_ops], feed_dict={self.x: dp.randNoise(self.data.unitNormalize(batch), 0.05), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+                self.sess.run([self.train_step, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training: True, self.keep_drop_prob: self.keep_rate})
 
                 batch, labels = self.data.next_batch(self.batch)
                 j += 1
@@ -238,7 +241,8 @@ class tiny_vgg:
                 if j%10 == 0:
                     sys.stdout.write("=")
                     sys.stdout.flush()
-                self.sess.run([self.train_step4, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+                # self.sess.run([self.train_step4, extra_update_ops], feed_dict={self.x: dp.randNoise(self.data.unitNormalize(batch), 0.05), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+                self.sess.run([self.train_step, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training: True, self.keep_drop_prob: self.keep_rate})
 
                 batch, labels = self.data.next_batch(self.batch)
                 j += 1
@@ -259,7 +263,8 @@ class tiny_vgg:
                 if j%10 == 0:
                     sys.stdout.write("=")
                     sys.stdout.flush()
-                self.sess.run([self.train_step5, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+                # self.sess.run([self.train_step5, extra_update_ops], feed_dict={self.x: dp.randNoise(self.data.unitNormalize(batch), 0.05), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+                self.sess.run([self.train_step, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training: True, self.keep_drop_prob: self.keep_rate})
 
                 batch, labels = self.data.next_batch(self.batch)
                 j += 1
@@ -280,7 +285,8 @@ class tiny_vgg:
                 if j%10 == 0:
                     sys.stdout.write("=")
                     sys.stdout.flush()
-                self.sess.run([self.train_step, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+                # self.sess.run([self.train_step, extra_update_ops], feed_dict={self.x: dp.randNoise(self.data.unitNormalize(batch), 0.05), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+                self.sess.run([self.train_step, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training: True, self.keep_drop_prob: self.keep_rate})
 
                 batch, labels = self.data.next_batch(self.batch)
                 j += 1
@@ -355,7 +361,8 @@ if __name__ == '__main__':
     print("testing")
     test_acc = net.test_eval()
 
-    with open("scratchnet2.csv", 'w') as o:
+    # with open("noisy.csv", 'w') as o:
+    with open("normal.csv", 'w') as o:
         buffer = ','.join(["epoch"] + [str(i) for i in range(20)])+'\n'
         o.write(buffer)
 
