@@ -14,7 +14,7 @@ import sys
 import data_processing as dp
 
 class tiny_vgg:
-    def __init__(self, weights=None, sess=None, lr=5e-5, epochs=150, batch=100, decay=0.7, keep_rate=0.15):
+    def __init__(self, weights=None, sess=None, lr=5e-5, epochs=50, batch=100, decay=0.7, keep_rate=0.15):
         self.lr = lr
         self.decay = decay
         self.epochs = epochs
@@ -53,11 +53,14 @@ class tiny_vgg:
             self.conv1_1 = tf.nn.relu(out, name=scope)
             self.parameters += [kernel, biases]
 
-        # with tf.name_scope('dec1_1') as scope:
-        #     conv = tf.nn.conv2d_transpose(self.conv1_1, kernel, [-1, 32, 32, 3])
-        #     biases = tf.Variable(tf.constant(0.0, shape=[3], dtype=tf.float32), trainable=True, name='biases')
-        #     out = tf.nn.bias_add(conv, biases)
-        #     self.dec_1 = tf.nn.relu(out, name=scope)
+        with tf.name_scope('dec1_1') as scope:
+            conv = tf.nn.conv2d_transpose(self.conv1_1, kernel, [-1, 32, 32, 3])
+            biases = tf.Variable(tf.constant(0.0, shape=[3], dtype=tf.float32), trainable=True, name='biases')
+            out = tf.nn.bias_add(conv, biases)
+            self.dec_1 = tf.nn.relu(out, name=scope)
+
+            self.loss_1 = tf.reduce_mean(tf.squared_difference(self.dec_1, self.x))
+            self.train_step1 = tf.train.AdamOptimizer(self.lr).minimize(self.loss_1, var_list=['conv1_1/weights:0', 'conv1_1/biases:0', 'dec1_1/biases:0'])
 
         # pool1
         self.pool1 = tf.nn.max_pool(self.conv1_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
@@ -72,11 +75,14 @@ class tiny_vgg:
             self.conv2_1 = tf.nn.relu(out, name=scope)
             self.parameters += [kernel, biases]
 
-        # with tf.name_scope('dec2_1') as scope:
-        #     conv = tf.nn.conv2d_transpose(self.conv2_1, kernel, [-1, 16, 16, 64])
-        #     biases = tf.Variable(tf.constant(0.0, shape=[3], dtype=tf.float32), trainable=True, name='biases')
-        #     out = tf.nn.bias_add(conv, biases)
-        #     self.dec_2 = tf.nn.relu(out, name=scope)
+        with tf.name_scope('dec2_1') as scope:
+            conv = tf.nn.conv2d_transpose(self.conv2_1, kernel, [-1, 16, 16, 64])
+            biases = tf.Variable(tf.constant(0.0, shape=[3], dtype=tf.float32), trainable=True, name='biases')
+            out = tf.nn.bias_add(conv, biases)
+            self.dec_2 = tf.nn.relu(out, name=scope)
+
+            self.loss_2 = tf.reduce_mean(tf.squared_difference(self.dec_2, self.pool1))
+            self.train_step2 = tf.train.AdamOptimizer(self.lr).minimize(self.loss_2, var_list=['conv2_1/weights:0', 'conv2_1/biases:0', 'dec2_1/biases:0'])
 
         # pool2
         self.pool2 = tf.nn.max_pool(self.conv2_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
@@ -91,11 +97,14 @@ class tiny_vgg:
             self.conv3_1 = tf.nn.relu(out, name=scope)
             self.parameters += [kernel, biases]
 
-        # with tf.name_scope('dec3_1') as scope:
-        #     conv = tf.nn.conv2d_transpose(self.conv3_1, kernel, [-1, 8, 8, 128])
-        #     biases = tf.Variable(tf.constant(0.0, shape=[3], dtype=tf.float32), trainable=True, name='biases')
-        #     out = tf.nn.bias_add(conv, biases)
-        #     self.dec_3_1 = tf.nn.relu(out, name=scope)
+        with tf.name_scope('dec3_1') as scope:
+            conv = tf.nn.conv2d_transpose(self.conv3_1, kernel, [-1, 8, 8, 128])
+            biases = tf.Variable(tf.constant(0.0, shape=[3], dtype=tf.float32), trainable=True, name='biases')
+            out = tf.nn.bias_add(conv, biases)
+            self.dec_3_1 = tf.nn.relu(out, name=scope)
+
+            self.loss_3 = tf.reduce_mean(tf.squared_difference(self.dec_3_1, self.pool2))
+            self.train_step3 = tf.train.AdamOptimizer(self.lr).minimize(self.loss_3, var_list=['conv3_1/weights:0', 'conv3_1/biases:0', 'dec3_1/biases:0'])
 
         # conv3_2
         with tf.name_scope('conv3_2') as scope:
@@ -107,11 +116,14 @@ class tiny_vgg:
             self.conv3_2 = tf.nn.relu(out, name=scope)
             self.parameters += [kernel, biases]
 
-        # with tf.name_scope('dec3_2') as scope:
-        #     conv = tf.nn.conv2d_transpose(self.conv3_2, kernel, [-1, 8, 8, 256])
-        #     biases = tf.Variable(tf.constant(0.0, shape=[3], dtype=tf.float32), trainable=True, name='biases')
-        #     out = tf.nn.bias_add(conv, biases)
-        #     self.dec_3_2 = tf.nn.relu(out, name=scope)
+        with tf.name_scope('dec3_2') as scope:
+            conv = tf.nn.conv2d_transpose(self.conv3_2, kernel, [-1, 8, 8, 256])
+            biases = tf.Variable(tf.constant(0.0, shape=[3], dtype=tf.float32), trainable=True, name='biases')
+            out = tf.nn.bias_add(conv, biases)
+            self.dec_3_2 = tf.nn.relu(out, name=scope)
+
+            self.loss_4 = tf.reduce_mean(tf.squared_difference(self.dec_3_2, self.conv3_1))
+            self.train_step4 = tf.train.AdamOptimizer(self.lr).minimize(self.loss_4, var_list=['conv3_2/weights:0', 'conv3_2/biases:0', 'dec3_2/biases:0'])
 
         # pool3
         self.pool3 = tf.nn.max_pool(self.conv3_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
@@ -127,6 +139,8 @@ class tiny_vgg:
             self.parameters += [fc1w, fc1b]
 
         out = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y_, logits=self.fc1l))
+        self.train_step5 = tf.train.AdamOptimizer(self.lr).minimize(out, var_list=['fc1/weights:0', 'c1/biases:0'])
+
         self.train_step = tf.train.AdamOptimizer(self.lr).minimize(out)
 
     # def load_weights(self, weight_file, sess):
@@ -150,6 +164,107 @@ class tiny_vgg:
 
         extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 
+        # train layer 1
+        for i in range(self.epochs):
+            sys.stdout.write("epoch {}: ".format(i))
+            sys.stdout.flush()
+            # todo - will have to implement batching for cifar-10
+            batch, labels = self.data.next_batch(self.batch)
+
+            j = 0
+            while batch != []:
+                if j%10 == 0:
+                    sys.stdout.write("=")
+                    sys.stdout.flush()
+                self.sess.run([self.train_step1, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+
+                batch, labels = self.data.next_batch(self.batch)
+                j += 1
+
+            sys.stdout.write('\n')
+            sys.stdout.flush()
+
+        # train layer 2
+        for i in range(self.epochs):
+            sys.stdout.write("epoch {}: ".format(i))
+            sys.stdout.flush()
+            # todo - will have to implement batching for cifar-10
+            batch, labels = self.data.next_batch(self.batch)
+
+            j = 0
+            while batch != []:
+                if j%10 == 0:
+                    sys.stdout.write("=")
+                    sys.stdout.flush()
+                self.sess.run([self.train_step2, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+
+                batch, labels = self.data.next_batch(self.batch)
+                j += 1
+
+            sys.stdout.write('\n')
+            sys.stdout.flush()
+
+        # train layer 3
+        for i in range(self.epochs):
+            sys.stdout.write("epoch {}: ".format(i))
+            sys.stdout.flush()
+            # todo - will have to implement batching for cifar-10
+            batch, labels = self.data.next_batch(self.batch)
+
+            j = 0
+            while batch != []:
+                if j%10 == 0:
+                    sys.stdout.write("=")
+                    sys.stdout.flush()
+                self.sess.run([self.train_step3, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+
+                batch, labels = self.data.next_batch(self.batch)
+                j += 1
+
+            sys.stdout.write('\n')
+            sys.stdout.flush()
+
+        # train layer 4
+        for i in range(self.epochs):
+            sys.stdout.write("epoch {}: ".format(i))
+            sys.stdout.flush()
+            # todo - will have to implement batching for cifar-10
+            batch, labels = self.data.next_batch(self.batch)
+
+            j = 0
+            while batch != []:
+                if j%10 == 0:
+                    sys.stdout.write("=")
+                    sys.stdout.flush()
+                self.sess.run([self.train_step4, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+
+                batch, labels = self.data.next_batch(self.batch)
+                j += 1
+
+            sys.stdout.write('\n')
+            sys.stdout.flush()
+
+        # train classifier
+        for i in range(self.epochs):
+            sys.stdout.write("epoch {}: ".format(i))
+            sys.stdout.flush()
+            # todo - will have to implement batching for cifar-10
+            batch, labels = self.data.next_batch(self.batch)
+
+            j = 0
+            while batch != []:
+                if j%10 == 0:
+                    sys.stdout.write("=")
+                    sys.stdout.flush()
+                self.sess.run([self.train_step5, extra_update_ops], feed_dict={self.x: self.data.unitNormalize(batch), self.y_: labels, self.training : True, self.keep_drop_prob : self.keep_rate})
+
+                batch, labels = self.data.next_batch(self.batch)
+                j += 1
+
+            sys.stdout.write('\n')
+            sys.stdout.flush()
+
+        # tune full network
         for i in range(self.epochs):
             sys.stdout.write("epoch {}: ".format(i))
             sys.stdout.flush()
