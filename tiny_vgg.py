@@ -80,7 +80,7 @@ class tiny_vgg:
 
         with tf.name_scope('dec2_1') as scope:
             conv = tf.nn.conv2d_transpose(self.conv2_1, kernel, [-1, 16, 16, 64], [1, 1, 1, 1], padding='SAME')
-            biases = tf.Variable(tf.constant(0.0, shape=[3], dtype=tf.float32), trainable=True, name='biases')
+            biases = tf.Variable(tf.constant(0.0, shape=[64], dtype=tf.float32), trainable=True, name='biases')
             out = tf.nn.bias_add(conv, biases)
             self.dec_2 = tf.nn.relu(out, name=scope)
 
@@ -105,7 +105,7 @@ class tiny_vgg:
 
         with tf.name_scope('dec3_1') as scope:
             conv = tf.nn.conv2d_transpose(self.conv3_1, kernel, [-1, 8, 8, 128], [1, 1, 1, 1], padding='SAME')
-            biases = tf.Variable(tf.constant(0.0, shape=[3], dtype=tf.float32), trainable=True, name='biases')
+            biases = tf.Variable(tf.constant(0.0, shape=[128], dtype=tf.float32), trainable=True, name='biases')
             out = tf.nn.bias_add(conv, biases)
             self.dec_3_1 = tf.nn.relu(out, name=scope)
 
@@ -127,7 +127,7 @@ class tiny_vgg:
 
         with tf.name_scope('dec3_2') as scope:
             conv = tf.nn.conv2d_transpose(self.conv3_2, kernel, [-1, 8, 8, 256], [1, 1, 1, 1], padding='SAME')
-            biases = tf.Variable(tf.constant(0.0, shape=[3], dtype=tf.float32), trainable=True, name='biases')
+            biases = tf.Variable(tf.constant(0.0, shape=[256], dtype=tf.float32), trainable=True, name='biases')
             out = tf.nn.bias_add(conv, biases)
             self.dec_3_2 = tf.nn.relu(out, name=scope)
 
