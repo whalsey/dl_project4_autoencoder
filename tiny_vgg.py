@@ -59,8 +59,11 @@ class tiny_vgg:
             out = tf.nn.bias_add(conv, biases)
             self.dec_1 = tf.nn.relu(out, name=scope)
 
+            vars = tf.trainable_variables()
+            whole = [v for v in vars if v.name.startswith("conv1_1") or v.name.startswith("dec1_1")]
+
             self.loss_1 = tf.reduce_mean(tf.squared_difference(self.dec_1, self.x))
-            self.train_step1 = tf.train.AdamOptimizer(self.lr).minimize(self.loss_1, var_list=['conv1_1/weights:0', 'conv1_1/biases:0', 'dec1_1/biases:0'])
+            self.train_step1 = tf.train.AdamOptimizer(self.lr).minimize(self.loss_1, var_list=whole)
 
         # pool1
         self.pool1 = tf.nn.max_pool(self.conv1_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool1')
@@ -81,8 +84,11 @@ class tiny_vgg:
             out = tf.nn.bias_add(conv, biases)
             self.dec_2 = tf.nn.relu(out, name=scope)
 
+            vars = tf.trainable_variables()
+            whole = [v for v in vars if v.name.startswith("conv2_1") or v.name.startswith("dec2_1")]
+
             self.loss_2 = tf.reduce_mean(tf.squared_difference(self.dec_2, self.pool1))
-            self.train_step2 = tf.train.AdamOptimizer(self.lr).minimize(self.loss_2, var_list=['conv2_1/weights:0', 'conv2_1/biases:0', 'dec2_1/biases:0'])
+            self.train_step2 = tf.train.AdamOptimizer(self.lr).minimize(self.loss_2, var_list=whole)
 
         # pool2
         self.pool2 = tf.nn.max_pool(self.conv2_1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool2')
@@ -103,8 +109,11 @@ class tiny_vgg:
             out = tf.nn.bias_add(conv, biases)
             self.dec_3_1 = tf.nn.relu(out, name=scope)
 
+            vars = tf.trainable_variables()
+            whole = [v for v in vars if v.name.startswith("conv3_1") or v.name.startswith("dec3_1")]
+
             self.loss_3 = tf.reduce_mean(tf.squared_difference(self.dec_3_1, self.pool2))
-            self.train_step3 = tf.train.AdamOptimizer(self.lr).minimize(self.loss_3, var_list=['conv3_1/weights:0', 'conv3_1/biases:0', 'dec3_1/biases:0'])
+            self.train_step3 = tf.train.AdamOptimizer(self.lr).minimize(self.loss_3, var_list=whole)
 
         # conv3_2
         with tf.name_scope('conv3_2') as scope:
@@ -122,8 +131,11 @@ class tiny_vgg:
             out = tf.nn.bias_add(conv, biases)
             self.dec_3_2 = tf.nn.relu(out, name=scope)
 
+            vars = tf.trainable_variables()
+            whole = [v for v in vars if v.name.startswith("conv3_2") or v.name.startswith("dec3_2")]
+
             self.loss_4 = tf.reduce_mean(tf.squared_difference(self.dec_3_2, self.conv3_1))
-            self.train_step4 = tf.train.AdamOptimizer(self.lr).minimize(self.loss_4, var_list=['conv3_2/weights:0', 'conv3_2/biases:0', 'dec3_2/biases:0'])
+            self.train_step4 = tf.train.AdamOptimizer(self.lr).minimize(self.loss_4, var_list=whole)
 
         # pool3
         self.pool3 = tf.nn.max_pool(self.conv3_2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME', name='pool3')
@@ -138,8 +150,11 @@ class tiny_vgg:
             self.fc1l = tf.layers.batch_normalization(out, training=self.training)
             self.parameters += [fc1w, fc1b]
 
+        vars = tf.trainable_variables()
+        whole = [v for v in vars if v.name.startswith("fc1")]
+
         out = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.y_, logits=self.fc1l))
-        self.train_step5 = tf.train.AdamOptimizer(self.lr).minimize(out, var_list=['fc1/weights:0', 'c1/biases:0'])
+        self.train_step5 = tf.train.AdamOptimizer(self.lr).minimize(out, var_list=whole)
 
         self.train_step = tf.train.AdamOptimizer(self.lr).minimize(out)
 
